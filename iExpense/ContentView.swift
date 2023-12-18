@@ -17,11 +17,11 @@ import Observation
 // iOS keeps track of every SwiftUI view that reads properties from an @Observed object, so when a property changes it can intelligently update all the views that depend on it while leaving the others unchanged
 // When working with structs, @State property wrapper keeps a value alive and also watches it for changes
 // On the other hand, when working with classes, @State is just there for keeping the object alive - all the watching for changes and updating the view is taken care of by @Observable
-@Observable
-class User {
-    var firstName = "Bilbo"
-    var lastName = "Baggins"
-}
+// @Observable
+// class User {
+//     var firstName = "Bilbo"
+//     var lastName = "Baggins"
+// }
 
 // A sheet is a new view presented on top of our existing one - gives us a card-like presentation where the currrent view slides away into the distance a little and the new view animates in on top
 // Sheets work much like alerts in that we don't present them directly with code -> instead, we define the conditions under which a sheet should be shown and when those conditions become true or false the sheet will either be presented or dismissed, respectively
@@ -47,8 +47,25 @@ class User {
 // The rest of the property is declared as normal -> providing a default value of 0; the value of zero will be used if there is no existing value saved inside UserDefaults
 // Using @AppStorage is easier than UserDefaults -> it is only one line of code rather than two -> however, @AppStorage doesn't make it easy to handle storing complex objects such as Swift structs
 
+// When storing more complex data (i.e., a struct), we poke around directly with UserDefaults itself rather than using @AppStorage
+// Swift uses protocal Codable: a protocal specifically for archiving and unarchiving data, a fancy way of saying "converting objects into plain text and back again."
+
+struct User: Codable {
+    let firstName: String
+    let lastName: String
+}
+
+// Swift will automatically generate code that will archive and unarchive User instances for us as needed -> we need to tell Swift WHEN to archive and what to do with the data
+// Part of the process is powered by a new type called JSONEncoder -> its job is to take something that conforms to Codable and send back that object in JavaScript Object Notation (JSON)
+// The Codable protocol doesn't require that we use JSON (other formats are available)
+// To convert our user data into JSOn data, we need to call the encode() method on a JSONEncoder -> this might throw errors so it should be called with try or try? to handle errors neatly
+// The data constant is a new data type called, Data ->it's designed to store any kind of data that you can think of
+// If we have JSON data and we want to convert it to Swift Codable types -> you can use JSONDecoder rather than JSONEncoder()
+
 struct ContentView: View {
     @AppStorage("tapCount") private var tapCount = 0
+    @State private var user = User(firstName: "Taylor", lastName: "Swift")
+
     //    @State private var tapCount = UserDefaults.standard.integer(forKey: "Tap")
     
     //    @State private var numbers = [Int]()
@@ -62,6 +79,14 @@ struct ContentView: View {
             Button("Tap count: \(tapCount)") {
                 tapCount += 1
                 //                UserDefaults.standard.set(tapCount, forKey: "Tap")
+            }
+            
+            Button("Save User") {
+                let encoder = JSONEncoder()
+
+                if let data = try? encoder.encode(user) {
+                    UserDefaults.standard.set(data, forKey: "UserData")
+                }
             }
             
             //            VStack {
