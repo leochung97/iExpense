@@ -23,13 +23,38 @@ class User {
     var lastName = "Baggins"
 }
 
+// A sheet is a new view presented on top of our existing one - gives us a card-like presentation where the currrent view slides away into the distance a little and the new view animates in on top
+// Sheets work much like alerts in that we don't present them directly with code -> instead, we define the conditions under which a sheet should be shown and when those conditions become true or false the sheet will either be presented or dismissed, respectively
+
 struct ContentView: View {
-    @State private var user = User()
+    @State private var showingSheet = false
+    //    @State private var user = User()
     var body: some View {
-        VStack {
-            Text("Your name is \(user.firstName) \(user.lastName).")
-            TextField("First name", text: $user.firstName)
-            TextField("Last name", text: $user.lastName)
+        Button("Show Sheet") {
+            showingSheet.toggle()
+        }
+        .sheet(isPresented: $showingSheet) {
+            SecondView(name: "Leo")
+        }
+        
+        //        VStack {
+        //            Text("Your name is \(user.firstName) \(user.lastName).")
+        //            TextField("First name", text: $user.firstName)
+        //            TextField("Last name", text: $user.lastName)
+        //        }
+    }
+}
+
+struct SecondView: View {
+    // To dismiss another view we need another property wrapper called @Environment - which allows you to create properties that store values provided to us externally
+    // For example: user light mode vs. dark mode, smaller / larger fonts, and timezones
+    // You can add a property called dismiss based on a value from the environment
+    @Environment(\.dismiss) var dismiss
+    let name: String
+
+    var body: some View {
+        Button("Dismiss") {
+            dismiss()
         }
     }
 }
