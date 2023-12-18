@@ -33,31 +33,53 @@ class User {
 // In order to make onDelete() work, you need to implement a method that will receive a single paramter of type IndexSet -> this is a bit like a set of integers except it is sorted and tells you the positions of all the items in the ForEach that should be removed
 // Because the ForEach was created entirely from a single array, we can aactually just pass that index set straight to our numbers array - it has a special remove(atOffsets:) method that accepts an index set
 
+// UserDefaults
+// UserDefaults will automatically be loaded when your app launches - if you store a lot in there your app launch will slow down -> aim to store no more than 512kb in there
+// UserDefaults is perfect for storing things like when the user last launched the app, which news story they last read, or other passively collected information
+// UserDefaults is often wrapped up in a simple property wrapper called @AppStorage -> it only supports a subset of functionality right now but it can still be helpful
+// You need to use UserDefaults.standard -> this is a bult-in instance of UserDefaults that is attached to your app but in more advanced apps you can create your own instance
+// There is a single set() method that accepts ANY kind of data - integers, Booleans, strings, etc.
+// We can attach a string name to this data (key "Tap") -> this key is case-sensitive and can be used to read the data back out of UserDefaults
+
+// @AppStorage
+// Our access to the UserDefaults system is through the @AppStorage property wrapper -> this works like @State -> when the value changes, it will reinvoke the body property so our UI reflects the new data
+// We attach a string name to AppStorage which is the UserDefaults key where we want to store the data -> it doesn't need to match the property name
+// The rest of the property is declared as normal -> providing a default value of 0; the value of zero will be used if there is no existing value saved inside UserDefaults
+// Using @AppStorage is easier than UserDefaults -> it is only one line of code rather than two -> however, @AppStorage doesn't make it easy to handle storing complex objects such as Swift structs
+
 struct ContentView: View {
-    @State private var numbers = [Int]()
-    @State private var currentNumber =  1
+    @AppStorage("tapCount") private var tapCount = 0
+    //    @State private var tapCount = UserDefaults.standard.integer(forKey: "Tap")
+    
+    //    @State private var numbers = [Int]()
+    //    @State private var currentNumber =  1
     
     //    @State private var showingSheet = false
     //    @State private var user = User()
     
     var body: some View {
         NavigationStack {
-            VStack {
-                List {
-                    ForEach(numbers, id: \.self) {
-                        Text("Row \($0)")
-                    }
-                    .onDelete(perform: removeRows)
-                }
-                
-                Button("Add Number") {
-                    numbers.append(currentNumber)
-                    currentNumber += 1
-                }
+            Button("Tap count: \(tapCount)") {
+                tapCount += 1
+                //                UserDefaults.standard.set(tapCount, forKey: "Tap")
             }
-            .toolbar {
-                EditButton()
-            }
+            
+            //            VStack {
+            //                List {
+            //                    ForEach(numbers, id: \.self) {
+            //                        Text("Row \($0)")
+            //                    }
+            //                    .onDelete(perform: removeRows)
+            //                }
+            
+            // Button("Add Number") {
+            //                    numbers.append(currentNumber)
+            //                    currentNumber += 1
+            //                }
+            //            }
+            //            .toolbar {
+            //                EditButton()
+            //            }
         }
 
         //        Button("Show Sheet") {
@@ -74,9 +96,10 @@ struct ContentView: View {
         //        }
     }
     
-    func removeRows(at offsets: IndexSet) {
-        numbers.remove(atOffsets: offsets)
-    }
+
+    //    func removeRows(at offsets: IndexSet) {
+    //        numbers.remove(atOffsets: offsets)
+    //    }
 }
 
 struct SecondView: View {
