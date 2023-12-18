@@ -26,22 +26,56 @@ class User {
 // A sheet is a new view presented on top of our existing one - gives us a card-like presentation where the currrent view slides away into the distance a little and the new view animates in on top
 // Sheets work much like alerts in that we don't present them directly with code -> instead, we define the conditions under which a sheet should be shown and when those conditions become true or false the sheet will either be presented or dismissed, respectively
 
+// onDelete()
+// A modifier that controls how objects should be deleted from a collection
+// Almost exclusively used with List and ForEach
+// onDelete() modifier only exists on ForEach -> it is easier to create lists where only some rows can be deleted
+// In order to make onDelete() work, you need to implement a method that will receive a single paramter of type IndexSet -> this is a bit like a set of integers except it is sorted and tells you the positions of all the items in the ForEach that should be removed
+// Because the ForEach was created entirely from a single array, we can aactually just pass that index set straight to our numbers array - it has a special remove(atOffsets:) method that accepts an index set
+
 struct ContentView: View {
-    @State private var showingSheet = false
+    @State private var numbers = [Int]()
+    @State private var currentNumber =  1
+    
+    //    @State private var showingSheet = false
     //    @State private var user = User()
+    
     var body: some View {
-        Button("Show Sheet") {
-            showingSheet.toggle()
+        NavigationStack {
+            VStack {
+                List {
+                    ForEach(numbers, id: \.self) {
+                        Text("Row \($0)")
+                    }
+                    .onDelete(perform: removeRows)
+                }
+                
+                Button("Add Number") {
+                    numbers.append(currentNumber)
+                    currentNumber += 1
+                }
+            }
+            .toolbar {
+                EditButton()
+            }
         }
-        .sheet(isPresented: $showingSheet) {
-            SecondView(name: "Leo")
-        }
+
+        //        Button("Show Sheet") {
+        //            showingSheet.toggle()
+        //        }
+        //        .sheet(isPresented: $showingSheet) {
+        //            SecondView(name: "Leo")
+        //        }
         
         //        VStack {
         //            Text("Your name is \(user.firstName) \(user.lastName).")
         //            TextField("First name", text: $user.firstName)
         //            TextField("Last name", text: $user.lastName)
         //        }
+    }
+    
+    func removeRows(at offsets: IndexSet) {
+        numbers.remove(atOffsets: offsets)
     }
 }
 
