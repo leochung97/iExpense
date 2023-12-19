@@ -62,8 +62,42 @@ import Observation
 // The data constant is a new data type called, Data ->it's designed to store any kind of data that you can think of
 // If we have JSON data and we want to convert it to Swift Codable types -> you can use JSONDecoder rather than JSONEncoder()
 
-struct ContentView: View {
+// UUID - Universally Unique Identifier -> long hexadecimal strings -> you can ask Swift to generate a UUID automatically through UUID() or store one with just UUID
+// Identifiable is a built-in protocol that means "this type can be identified uniquely" -> it has only one requirement which is that there must be a property called id that contains a unique identifier
+// You no longer need to fetch ForEach property to the id -> we have the Identifiable protocol to tell Swift that these objects are unique
+struct ExpenseItem: Identifiable, Codable {
+    var id = UUID()
+    let name: String
+    let type: String
+    let amount: Int
+}
 
+@Observable
+class Expenses {
+    init() {
+        if let savedItems = UserDefaults.standard.data(forKey: "Items") {
+            if let decodedItems = try? JSONDecoder().decode([ExpenseItem].self, from: savedItems) {
+                items = decodedItems
+                return
+            }
+        }
+
+        items = []
+    }
+    
+    var items = [ExpenseItem]() {
+        didSet {
+            if let encoded = try? JSONEncoder().encode(items) {
+                UserDefaults.standard.set(encoded, forKey: "Items")
+            }
+        }
+    }
+}
+
+struct ContentView: View {
+    @State private var expenses = Expenses()
+    @State private var showingAddExpense = false
+    
     //    @AppStorage("tapCount") private var tapCount = 0
     //    @State private var user = User(firstName: "Taylor", lastName: "Swift")
     //    @State private var tapCount = UserDefaults.standard.integer(forKey: "Tap")
@@ -73,7 +107,33 @@ struct ContentView: View {
     //    @State private var user = User()
     
     var body: some View {
+        NavigationStack {
+            List {
+                ForEach(expenses.items) { item in
+                    HStack {
+                        VStack(alignment: .leading) {
+                            Text(item.name)
+                                .font(.headline)
+                            Text(item.type)
+                        }
 
+                        Spacer()
+                        Text(item.amount, format: .currency(code: "USD"))
+                    }
+                }
+                .onDelete(perform: removeItems)
+            }
+            .navigationTitle("iExpense")
+            .toolbar {
+                Button("Add Expense", systemImage: "plus") {
+                    showingAddExpense = true
+                }
+            }
+        }
+        .sheet(isPresented: $showingAddExpense) {
+            AddView(expenses: expenses)
+        }
+        
         //        NavigationStack {
         //            Button("Tap count: \(tapCount)") {
         //                tapCount += 1
@@ -105,7 +165,6 @@ struct ContentView: View {
             //                EditButton()
             //            }
 //        }
-
         //        Button("Show Sheet") {
         //            showingSheet.toggle()
         //        }
@@ -118,6 +177,10 @@ struct ContentView: View {
         //            TextField("First name", text: $user.firstName)
         //            TextField("Last name", text: $user.lastName)
         //        }
+    }
+    
+    func removeItems(at offsets: IndexSet) {
+        expenses.items.remove(atOffsets: offsets)
     }
     
     //    func removeRows(at offsets: IndexSet) {
