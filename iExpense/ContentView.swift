@@ -50,10 +50,10 @@ import Observation
 // When storing more complex data (i.e., a struct), we poke around directly with UserDefaults itself rather than using @AppStorage
 // Swift uses protocal Codable: a protocal specifically for archiving and unarchiving data, a fancy way of saying "converting objects into plain text and back again."
 
-struct User: Codable {
-    let firstName: String
-    let lastName: String
-}
+// struct User: Codable {
+//     let firstName: String
+//     let lastName: String
+// }
 
 // Swift will automatically generate code that will archive and unarchive User instances for us as needed -> we need to tell Swift WHEN to archive and what to do with the data
 // Part of the process is powered by a new type called JSONEncoder -> its job is to take something that conforms to Codable and send back that object in JavaScript Object Notation (JSON)
@@ -63,31 +63,30 @@ struct User: Codable {
 // If we have JSON data and we want to convert it to Swift Codable types -> you can use JSONDecoder rather than JSONEncoder()
 
 struct ContentView: View {
-    @AppStorage("tapCount") private var tapCount = 0
-    @State private var user = User(firstName: "Taylor", lastName: "Swift")
 
+    //    @AppStorage("tapCount") private var tapCount = 0
+    //    @State private var user = User(firstName: "Taylor", lastName: "Swift")
     //    @State private var tapCount = UserDefaults.standard.integer(forKey: "Tap")
-    
     //    @State private var numbers = [Int]()
     //    @State private var currentNumber =  1
-    
     //    @State private var showingSheet = false
     //    @State private var user = User()
     
     var body: some View {
-        NavigationStack {
-            Button("Tap count: \(tapCount)") {
-                tapCount += 1
-                //                UserDefaults.standard.set(tapCount, forKey: "Tap")
-            }
-            
-            Button("Save User") {
-                let encoder = JSONEncoder()
 
-                if let data = try? encoder.encode(user) {
-                    UserDefaults.standard.set(data, forKey: "UserData")
-                }
-            }
+        //        NavigationStack {
+        //            Button("Tap count: \(tapCount)") {
+        //                tapCount += 1
+        //                //                UserDefaults.standard.set(tapCount, forKey: "Tap")
+        //            }
+        //
+        //            Button("Save User") {
+        //                let encoder = JSONEncoder()
+        //
+        //                if let data = try? encoder.encode(user) {
+        //                    UserDefaults.standard.set(data, forKey: "UserData")
+        //                }
+        //            }
             
             //            VStack {
             //                List {
@@ -105,7 +104,7 @@ struct ContentView: View {
             //            .toolbar {
             //                EditButton()
             //            }
-        }
+//        }
 
         //        Button("Show Sheet") {
         //            showingSheet.toggle()
@@ -121,7 +120,6 @@ struct ContentView: View {
         //        }
     }
     
-
     //    func removeRows(at offsets: IndexSet) {
     //        numbers.remove(atOffsets: offsets)
     //    }
